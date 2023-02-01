@@ -1,0 +1,10 @@
+1. `sh certs/generate-dev-certs.sh generate`
+2. `sh test.sh`
+
+This will spin up a testing instance with a Cryostat server presenting a self-signed SSL certificate,
+and a `quarkus-test` instance with the `cryostat-agent` attached. This `quarkus-test` application is
+configured to trust the server's certificate and the `-agent`'s internal HTTP client will attempt to
+validate that the certificate presented is trusted and that the hostname matches the certificate when
+it registers with the server as a discovery plugin, publishes itself as a target, and pushes JFR data.
+Verify this by watching the server logs (output of `sh test.sh`) and the application logs
+(`podman logs -f quarkus-test-ssl`).
