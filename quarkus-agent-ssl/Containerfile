@@ -1,0 +1,17 @@
+FROM quay.io/andrewazores/quarkus-test:latest
+
+USER 0
+RUN mkdir -p /deployments/app/ssl \
+    && cp /etc/pki/java/cacerts /deployments/app/ssl/cacerts
+COPY ./truststore/dev-self-signed.cer /deployments/app/ssl/dev-self-signed.cer
+RUN keytool -import -v \
+            -noprompt \
+            -alias custom-cryostat \
+            -trustcacerts \
+            -keystore /deployments/app/ssl/cacerts \
+            -file /deployments/app/ssl/dev-self-signed.cer \
+            -storepass changeit
+USER 185
+
+ENV JAVA_OPTS="-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -Dcom.sun.management.jmxremote.port=9097 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -javaagent:/deployments/app/cryostat-agent.jar -Djavax.net.ssl.trustStore=/deployments/app/ssl/cacerts"
+ENV JAVA_APP_JAR="/deployments/quarkus-run.jar"
