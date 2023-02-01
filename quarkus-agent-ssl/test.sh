@@ -63,7 +63,7 @@ runDemoApps() {
         --env CRYOSTAT_AGENT_AUTHORIZATION="Basic $(echo user:pass | base64)" \
         --env CRYOSTAT_AGENT_HARVESTER_PERIOD_MS=60000 \
         --env CRYOSTAT_AGENT_HARVESTER_MAX_FILES=10 \
-        --rm -d quay.io/andrewazores/quarkus-test:latest
+        --rm -d quay.io/andrewazores/quarkus-test-ssl:latest
 }
 
 runJfrDatasource() {
@@ -101,7 +101,7 @@ createPod() {
     grafanaPort="3000"
     podman pod create \
         --replace \
-        --hostname cryostat \
+        --hostname localhost \
         --name cryostat-pod \
         --publish "${jmxPort}:${jmxPort}" \
         --publish "${webPort}:${webPort}" \
@@ -120,19 +120,11 @@ destroyPod() {
 }
 trap destroyPod EXIT
 
-createPod
-if [ "$1" = "postgres" ]; then
-    runPostgres
-elif [ "$1" = "postgres-pgcli" ]; then
-    runPostgres
-    PGPASSWORD=abcd1234 pgcli -h localhost -p 5432 -U postgres
-    exit
-fi
-
 podman build . -t quay.io/andrewazores/quarkus-test-ssl:latest
 podman image prune -f
 
+createPod
 runDemoApps
 runJfrDatasource
 runGrafana
-runCryostat "$1"
+runCryostat

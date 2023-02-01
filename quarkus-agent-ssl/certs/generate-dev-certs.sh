@@ -56,7 +56,7 @@ keytool \
 keytool \
     -genkeypair -v \
     -alias custom-cryostat \
-    -dname "cn=cryostat, o=Cryostat, c=CA" \
+    -dname "cn=localhost, o=Cryostat, c=CA" \
     -storetype PKCS12 \
     -validity 365 \
     -keyalg RSA \
